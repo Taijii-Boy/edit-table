@@ -25,6 +25,11 @@ iSelectionManager = iKompasDocument2D1.SelectionManager
 selected_object = iSelectionManager.SelectedObjects
 
 iTable = KAPI7.ITable(selected_object)
+print(iTable.ColumnsCount)
+print(iTable.RowsCount)
+iTable.AddColumn(1, True)
+iTable.AddRow(1, True)
+
 
 
 
