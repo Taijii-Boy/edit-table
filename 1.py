@@ -24,7 +24,7 @@ while len(list_of_elements) > 1:
 			new_list.append(f"Масса есть в элементе {i}")
 	if new_list == []:
 		del list_of_elements[0]
-	print(new_list)
+print(new_list)
 
 
 
