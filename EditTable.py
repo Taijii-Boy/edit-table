@@ -32,15 +32,16 @@ iDrawingObject = KAPI7.IDrawingObject(iTable)
 # iTable.AddColumn(0, True)
 # iTable.AddRow(0, True)
 # iTable.DeleteRow(3)
-for row in range(1, iTable.RowsCount):
-	for column in range(1, iTable.ColumnsCount):
-		id_cell = row * column
-		iTableCell = iTable.CellById(id_cell)
-		iCellFormat = KAPI7.ICellFormat(iTableCell)
-		iCellFormat.ReadOnly = ReadOnly
-		iDrawingObject.Update()	
+# for row in range(1, iTable.RowsCount):
+# 	for column in range(1, iTable.ColumnsCount):
+# 		id_cell = row * column
+# 		iTableCell = iTable.CellById(id_cell)
+# 		iCellFormat = KAPI7.ICellFormat(iTableCell)
+# 		iCellFormat.ReadOnly = ReadOnly
+# 		iDrawingObject.Update()	
 
-
+version = ksGetDocumentOpenVersion(0)
+print("Version is: ", version)
 
 
 
