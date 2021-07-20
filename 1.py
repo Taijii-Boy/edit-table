@@ -5,8 +5,8 @@ between_base_object = False
 # first_iter = True
 # list_of_mass = []
 new_list = []
-
-my_list = [["", "Сборочные единицы", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""], ["", "Детали", "", "", ""], ["", "ыва", "2", "2", "0,005"], ["", "", "", "", ""], ["", "Материалы", "", "", ""]]
+another_list = []
+my_list = [["", "Сборочные единицы", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""], ["", "Детали", "", "", ""], ["", "ыва", "2", "2", "0,005"], ["", "", "", "", ""], ["", "Материалы", "", "", ""], ["", "", "", "", ""], ["", "Детали", "", "", ""]]
 
 list_of_elements = []
 i = 0
@@ -18,19 +18,27 @@ for element in my_list:
 		i += 1
 print(list_of_elements)
 
-while len(list_of_elements) > 1:
-	for i in range(list_of_elements[0] + 1, list_of_elements[1]):
-		if my_list[i][4] != "":
-			new_list.append(f"Масса есть в элементе {i}")
-	if new_list == []:
-		del list_of_elements[0]
+
+# check = 0
+# 	for i in range(list_of_elements[0] + 1, list_of_elements[1]):
+# 		if my_list[i][4] == "":
+# 			check += 1
+# 	if check == list_of_elements[1] - list_of_elements[0] - 1: 
+# 		del list_of_elements[0]
+# 	print(list_of_elements)
+
+for i in range(0, len(list_of_elements)-1):
+	new_list.append([list_of_elements[i], list_of_elements[i + 1]])
 print(new_list)
 
 
+for i in new_list:
+	k = list(range(i[0], i[1]+1))	
+	another_list.append(k)
+print(another_list)
+	
 
-
-
-
+ 
 
 
 # 
