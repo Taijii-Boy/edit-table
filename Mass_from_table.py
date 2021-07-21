@@ -123,40 +123,6 @@ def clear_table():
     iDrawingObject.Update() # Обновляем графический объект
 
 
-# # Функция удаления из таблицы лишних строк
-# # 0 - Обозначение, 1 - Наименование, 2 - Кол на сборке, 3 - Количество на изд, 4 - Масса
-# def clear_table(table_list):
-#     another_list = []
-#     iDrawingObject = KAPI7.IDrawingObject(iTable)
-#     rows_to_delete = []
-#     base_spc_element = ("Документация", "Сборочные единицы", "Детали", 
-#                         "Стандартные изделия", "Прочие изделия", "Материалы")
-    
-#     spc_elements = ("Болты", "Винты", "Втулки", "Гайки", "Гермовводы", "Заклепки",  "Клемма", 
-#                     "Кронштейны",  "Колодки клеммные", "Перемычки", "Пистоны", "Пломба", "Стойки", 
-#                     "Уголки", "Хомуты", "Шайбы", "Шины")
-
-#     for i in range(0, len(table_list)):
-#         if table_list[i][3] in ("111", "222", "1111", "2222"):
-#             rows_to_delete.append(i) 
-#         if table_list[i][4] == "":
-#             another_list.append(i)
-#     print(another_list)
-
-
-#     # first_iter = True
-#     # j = 1
-#     # for r in rows_to_delete:
-#     #     if first_iter:
-#     #         iTable.DeleteRow(r) # Удаляем строки
-#     #         first_iter = False
-#     #     else:
-#     #         iTable.DeleteRow(r - j) # Учитываем удаленные строки в списке rows_to_delete 
-#     #         j += 1
-#     # iDrawingObject.Update() # Обновляем графический объект
-
-
-
 # MAIN
 
 # Получаем выделенную таблицу
@@ -184,18 +150,12 @@ elif type(selected_object) == tuple:
     get_result(total_mass)  # Выводим результат
     exit()
 
-# # Если выделена одна таблица
-# iTable = KAPI7.ITable(selected_object)
-# # clear_table() # Удаляем лишние строки
-# rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
-# rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
-# mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 4 знаков после запятой
-# get_result(mass) # Выводим результат
-
 # Если выделена одна таблица
 iTable = KAPI7.ITable(selected_object)
-rows_in_table = get_rows_from_table()
+# clear_table() # Удаляем лишние строки
+rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
 clear_table()
-# print(rows_in_table)
-
-
+rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
+rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
+mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 4 знаков после запятой
+get_result(mass) # Выводим результат
