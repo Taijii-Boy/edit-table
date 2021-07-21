@@ -97,47 +97,20 @@ def get_result(mass):
         pyperclip.copy(mass) # Копируем в буфер обмена
 
 
-# # Удаляем из таблицы лишние строки
-# def clear_table():
-#     rows_to_delete = []
-#     iDrawingObject = KAPI7.IDrawingObject(iTable)
-#     for row in range(2, iTable.RowsCount): # Проходим по всем строкам, не включая шапку
-#         for column in (4, 6, 8):
-#             if column == 6:
-#                 iTableCell = iTable.Cell(row, column) # 6 - Номер колонки с количеством на изделии
-#                 iTextObject = iTableCell.Text
-#                 iText = iTextObject._oleobj_.QueryInterface(KAPI7.IText.CLSID, pythoncom.IID_IDispatch)
-#                 iText = KAPI7.IText(iText)
-#                 iText = iText.Str
-#                 if iText == "111" or iText == "222" or iText == "1111" or iText == "2222":
-# #                     rows_to_delete.append(iTableCell.Row) # Создаем список строк, которые необходимо удалить
-       
-#     first_iter = True
-#     j = 1
-#     for r in rows_to_delete:
-#         if first_iter:
-#             iTable.DeleteRow(r) # Удаляем строки
-#             first_iter = False
-#         else:
-#             iTable.DeleteRow(r - j) # Учитываем удаленные строки в списке rows_to_delete 
-#             j += 1
-#     iDrawingObject.Update() # Обновляем графический объект
-
-
-# Функция удаления из таблицы лишних строк
-# 0 - Обозначение, 1 - Наименование, 2 - Кол на сборке, 3 - Количество на изд, 4 - Масса
-def clear_table(table_list):
-    iDrawingObject = KAPI7.IDrawingObject(iTable)
+# Удаляем из таблицы лишние строки
+def clear_table():
     rows_to_delete = []
-    base_spc_element = ["Сборочные единицы", "Детали", "Стандартные изделия", "Прочие изделия", "Материалы"]
-
-    for i in range(0, len(table_list)):
-        if table_list[i][3] == "111" or table_list[i][3] == "222" or table_list[i][3] == "1111" or table_list[i][3] == "2222":
-            rows_to_delete.append(i) 
-        if table_list[i][1] == "Сборочные единицы" and 
-
-
-
+    iDrawingObject = KAPI7.IDrawingObject(iTable)
+    for row in range(2, iTable.RowsCount): # Проходим по всем строкам, не включая шапку
+        for column in (4, 6, 8):
+            if column == 6:
+                iTableCell = iTable.Cell(row, column) # 6 - Номер колонки с количеством на изделии
+                iTextObject = iTableCell.Text
+                iText = iTextObject._oleobj_.QueryInterface(KAPI7.IText.CLSID, pythoncom.IID_IDispatch)
+                iText = KAPI7.IText(iText)
+                iText = iText.Str
+                if iText in ("111", "222", "1111", "2222"):
+                    rows_to_delete.append(iTableCell.Row) # Создаем список строк, которые необходимо удалить
     first_iter = True
     j = 1
     for r in rows_to_delete:
@@ -148,6 +121,39 @@ def clear_table(table_list):
             iTable.DeleteRow(r - j) # Учитываем удаленные строки в списке rows_to_delete 
             j += 1
     iDrawingObject.Update() # Обновляем графический объект
+
+
+# # Функция удаления из таблицы лишних строк
+# # 0 - Обозначение, 1 - Наименование, 2 - Кол на сборке, 3 - Количество на изд, 4 - Масса
+# def clear_table(table_list):
+#     another_list = []
+#     iDrawingObject = KAPI7.IDrawingObject(iTable)
+#     rows_to_delete = []
+#     base_spc_element = ("Документация", "Сборочные единицы", "Детали", 
+#                         "Стандартные изделия", "Прочие изделия", "Материалы")
+    
+#     spc_elements = ("Болты", "Винты", "Втулки", "Гайки", "Гермовводы", "Заклепки",  "Клемма", 
+#                     "Кронштейны",  "Колодки клеммные", "Перемычки", "Пистоны", "Пломба", "Стойки", 
+#                     "Уголки", "Хомуты", "Шайбы", "Шины")
+
+#     for i in range(0, len(table_list)):
+#         if table_list[i][3] in ("111", "222", "1111", "2222"):
+#             rows_to_delete.append(i) 
+#         if table_list[i][4] == "":
+#             another_list.append(i)
+#     print(another_list)
+
+
+#     # first_iter = True
+#     # j = 1
+#     # for r in rows_to_delete:
+#     #     if first_iter:
+#     #         iTable.DeleteRow(r) # Удаляем строки
+#     #         first_iter = False
+#     #     else:
+#     #         iTable.DeleteRow(r - j) # Учитываем удаленные строки в списке rows_to_delete 
+#     #         j += 1
+#     # iDrawingObject.Update() # Обновляем графический объект
 
 
 
@@ -189,6 +195,7 @@ elif type(selected_object) == tuple:
 # Если выделена одна таблица
 iTable = KAPI7.ITable(selected_object)
 rows_in_table = get_rows_from_table()
-print(rows_in_table)
+clear_table()
+# print(rows_in_table)
 
 

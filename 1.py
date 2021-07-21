@@ -3,7 +3,7 @@ base_spc_element = ["Сборочные единицы", "Детали", "Ста
 between_base_object = False
 # print("Изначальный флаг: ", between_base_object)
 # first_iter = True
-# list_of_mass = []
+list_of_mass = []
 new_list = []
 another_list = []
 my_list = [["", "Сборочные единицы", "", "", ""], ["", "", "", "", ""], ["", "", "", "", ""], ["", "Детали", "", "", ""], ["", "ыва", "2", "2", "0,005"], ["", "", "", "", ""], ["", "Материалы", "", "", ""], ["", "", "", "", ""], ["", "Детали", "", "", ""]]
@@ -18,6 +18,14 @@ for element in my_list:
 		i += 1
 print(list_of_elements)
 
+for i in range(len(my_list)):
+	for j in range(len(another_list)):
+		print("my_list[i][4].count("") = ", my_list[i][4].count(""))
+		print("len(another_list[j]) = ", len(another_list[j])
+		if my_list[i][4].count("") == len(another_list[j]):
+			# del my_list[start:end]
+			print("Удаляем элементы")
+
 
 # check = 0
 # 	for i in range(list_of_elements[0] + 1, list_of_elements[1]):
@@ -26,6 +34,7 @@ print(list_of_elements)
 # 	if check == list_of_elements[1] - list_of_elements[0] - 1: 
 # 		del list_of_elements[0]
 # 	print(list_of_elements)
+
 
 for i in range(0, len(list_of_elements)-1):
 	new_list.append([list_of_elements[i], list_of_elements[i + 1]])
@@ -38,10 +47,15 @@ for i in new_list:
 print(another_list)
 	
 
- 
+# for i in range(0, len(another_list)):
+# 	for k in range(0, len(another_list[i])):
+# 		if my_list[k][4] == "":
+# 			my_new_list.append(my_list[k][4])
 
 
-# 
+
+
+
 # for i in range(0, len(my_list)):
 # 	if first_iter:
 # 		if my_list[i][1] in base_spc_element:
