@@ -54,7 +54,7 @@ def point(text):
     return text
 
 
-# Функция, меняющая запятую в значениях на точку
+# Функция, меняющая точку в значениях на запятую
 def comma(text):
     text = text.replace('.',',')
     return text
@@ -127,7 +127,6 @@ def clear_table():
 
 # Получаем выделенную таблицу
 total_mass = 0.000
-# need_clear_table = False
 
 iSelectionManager = iKompasDocument2D1.SelectionManager 
 selected_object = iSelectionManager.SelectedObjects
@@ -139,23 +138,23 @@ elif type(selected_object) == tuple:
     for sel_object in selected_object:
         if sel_object.Type == 13062: # Если в выделенных элементах присутствует Таблица
             iTable = KAPI7.ITable(sel_object)
-            # clear_table() # Удаляем лишние строки
             rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
+            clear_table() # Удаляем лишние строки
+            rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
             rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
-            mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 4 знаков после запятой
+            mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
             total_mass = total_mass + mass
         else:
             continue # Пропускаем все выделенные объекты кроме таблиц
-    total_mass = round(total_mass, 3) # Округляем до 4 знаков после запятой
+    total_mass = round(total_mass, 3) # Округляем до 3 знаков после запятой
     get_result(total_mass)  # Выводим результат
     exit()
 
 # Если выделена одна таблица
 iTable = KAPI7.ITable(selected_object)
-# clear_table() # Удаляем лишние строки
 rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
-clear_table()
+clear_table() # Удаляем лишние строки
 rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
 rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
-mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 4 знаков после запятой
+mass = round(get_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
 get_result(mass) # Выводим результат
