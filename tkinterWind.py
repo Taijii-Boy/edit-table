@@ -27,10 +27,10 @@ class Application(tk.Tk):
 
 
         def change_entry_state(event):
-            if  combo_document_type.get() == "*.cdw" or combo_document_type.get() == "Служебка":
+            if  self.combo_document_type.get() == "*.cdw" or self.combo_document_type.get() == "Служебка":
                 entry_library_path.configure(state = "disable")
                 btn_get_library_path.configure(state = "disable")
-            elif combo_document_type.get() == "*.spw":
+            elif self.combo_document_type.get() == "*.spw":
                 entry_library_path.configure(state = "normal")
                 btn_get_library_path.configure(state = "normal")
 
@@ -45,26 +45,33 @@ class Application(tk.Tk):
 
         
         tk.Label(self, text = "Общая масса равна: ").grid(row = 0, column = 0, pady = 5, stick = "w")
-        tk.Label(self, text = "Путь к библиотеке стилей: ").grid(row = 2, column = 0)
+        tk.Label(self, text = "Путь к библиотеке стилей: ").grid(row = 3, column = 0)
+        self.label_mass_result = tk.Label(self, text = "")
+        self.label_mass_result.grid(row = 0, column = 1, pady = 5, stick = "w")
         
-        tk.Label(self, text = "Тип документа: ").grid(row = 1, column = 0, stick = "w")
-        combo_document_type = ttk.Combobox(self, values = document_types)
-        combo_document_type.grid(row = 1, column = 1, columnspan = 2, stick = "we")
-        combo_document_type.current(1)
-        combo_document_type.bind("<<ComboboxSelected>>", change_entry_state)
+        tk.Label(self, text = "Компас документ:").grid(row = 1, column = 0, stick = "w")
+        self.label_status = tk.Label(self, text = "Закрыт", fg = "red")
+        self.label_status.grid(row = 1, column = 1, stick = "w")
+
+        tk.Label(self, text = "Тип документа: ").grid(row = 2, column = 0, stick = "w")
+        self.combo_document_type = ttk.Combobox(self, values = document_types)
+        self.combo_document_type.grid(row = 2, column = 1, columnspan = 2, stick = "we")
+        self.combo_document_type.current(1)
+        self.combo_document_type.bind("<<ComboboxSelected>>", change_entry_state)
 
         entry_library_path = tk.Entry(self)
-        entry_library_path.grid(row = 2, column = 1, stick = "we")
+        entry_library_path.grid(row = 3, column = 1, stick = "we")
         entry_library_path.insert(0, lib_path)
 
         btn_get_library_path = ttk.Button(self, text = "...", width = 3, command = open_lib_file)
-        btn_get_library_path.grid(row = 2, column = 2)
+        btn_get_library_path.grid(row = 3, column = 2)
 
-        btn_get_mass = ttk.Button(self, text = "Рассчитать массу").grid(row = 3, column = 0, stick = "w", padx = 5, pady = 10)
+        self.btn_get_mass = ttk.Button(self, text = "Рассчитать массу")
+        self.btn_get_mass.grid(row = 4, column = 0, stick = "w", padx = 5, pady = 10)
         cbtn_need_to_delete = tk.Checkbutton(self, text = "Удалять лишние строки",
                             variable = need_to_delete_value,
                             offvalue = 0, 
-                            onvalue = 1).grid(row = 3, column = 1)
+                            onvalue = 1).grid(row = 4, column = 1)
 
 
 if __name__ == '__main__':
