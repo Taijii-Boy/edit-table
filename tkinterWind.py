@@ -10,7 +10,6 @@ class Application(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
-
         self.set_ui()
         self.set_widgets()
 
@@ -22,16 +21,15 @@ class Application(tk.Tk):
     def set_widgets(self):
 
         document_types = ("*.cdw", "*.spw", "Служебка")
-        need_to_delete_value = tk.IntVar()
+        self.need_to_delete_value = tk.IntVar()
         lib_path = "C:\\LYT\\GRAPHICIL.LYT"
-
 
         def change_entry_state(event):
             if  self.combo_document_type.get() == "*.cdw" or self.combo_document_type.get() == "Служебка":
-                entry_library_path.configure(state = "disable")
+                self.entry_library_path.configure(state = "disable")
                 btn_get_library_path.configure(state = "disable")
             elif self.combo_document_type.get() == "*.spw":
-                entry_library_path.configure(state = "normal")
+                self.entry_library_path.configure(state = "normal")
                 btn_get_library_path.configure(state = "normal")
 
 
@@ -40,11 +38,13 @@ class Application(tk.Tk):
                                                     filetypes=[("Библиотека оформлений", "*.lyt")])
                 if file_path:
                     file_path = file_path.replace("/", "\\")
-                    entry_library_path.delete(0, tk.END)
-                    entry_library_path.insert(0, file_path)
+                    self.entry_library_path.delete(0, tk.END)
+                    self.entry_library_path.insert(0, file_path)
 
         
-        tk.Label(self, text = "Общая масса равна: ").grid(row = 0, column = 0, pady = 5, stick = "w")
+        self.label_mass = tk.Label(self, text = "Общая масса равна: ")
+        self.label_mass.grid(row = 0, column = 0, pady = 5, stick = "w")
+
         tk.Label(self, text = "Путь к библиотеке стилей: ").grid(row = 3, column = 0)
         self.label_mass_result = tk.Label(self, text = "")
         self.label_mass_result.grid(row = 0, column = 1, pady = 5, stick = "w")
@@ -59,19 +59,20 @@ class Application(tk.Tk):
         self.combo_document_type.current(1)
         self.combo_document_type.bind("<<ComboboxSelected>>", change_entry_state)
 
-        entry_library_path = tk.Entry(self)
-        entry_library_path.grid(row = 3, column = 1, stick = "we")
-        entry_library_path.insert(0, lib_path)
+        self.entry_library_path = tk.Entry(self)
+        self.entry_library_path.grid(row = 3, column = 1, stick = "we")
+        self.entry_library_path.insert(0, lib_path)
 
         btn_get_library_path = ttk.Button(self, text = "...", width = 3, command = open_lib_file)
         btn_get_library_path.grid(row = 3, column = 2)
 
         self.btn_get_mass = ttk.Button(self, text = "Рассчитать массу")
         self.btn_get_mass.grid(row = 4, column = 0, stick = "w", padx = 5, pady = 10)
-        cbtn_need_to_delete = tk.Checkbutton(self, text = "Удалять лишние строки",
-                            variable = need_to_delete_value,
+        self.cbtn_need_to_delete = tk.Checkbutton(self, text = "Удалять лишние строки",
+                            variable = self.need_to_delete_value,
                             offvalue = 0, 
-                            onvalue = 1).grid(row = 4, column = 1)
+                            onvalue = 1)
+        self.cbtn_need_to_delete.grid(row = 4, column = 1)
 
 
 if __name__ == '__main__':
