@@ -13,24 +13,42 @@ class Application(tk.Tk):
         self.set_ui()
         self.set_widgets()
 
+
     def set_ui(self):
-        self.title("Расчет массы Компас 3D v.0.1")
+        self.title("Расчет массы v.1.0")
         # self.geometry(f"{root_width}x{root_height}+1200+200")
         self.resizable(False, False) # Возможность изменения размера по ширине и по высоте
+ 
+
+    def save_configuration(self):
+        with open("config.ini", mode = "w") as config:
+            config.write(self.entry_library_path.get())
+       
+
+    def load_configuration(self):
+        with open("config.ini", mode = "r") as config:
+            return config.read()
+
 
     def set_widgets(self):
-
         document_types = ("*.cdw", "*.spw", "Служебка")
         self.need_to_delete_value = tk.IntVar()
-        lib_path = "C:\\LYT\\GRAPHICIL.LYT"
+        lib_path = self.load_configuration()
+
 
         def change_entry_state(event):
-            if  self.combo_document_type.get() == "*.cdw" or self.combo_document_type.get() == "Служебка":
+            if  self.combo_document_type.get() == "*.cdw":
                 self.entry_library_path.configure(state = "disable")
                 btn_get_library_path.configure(state = "disable")
+                self.cbtn_need_to_delete.configure(state = "disable")
             elif self.combo_document_type.get() == "*.spw":
                 self.entry_library_path.configure(state = "normal")
                 btn_get_library_path.configure(state = "normal")
+                self.cbtn_need_to_delete.configure(state = "disable")
+            elif self.combo_document_type.get() == "Служебка":
+                self.entry_library_path.configure(state = "disable")
+                btn_get_library_path.configure(state = "disable")
+                self.cbtn_need_to_delete.configure(state = "normal")
 
 
         def open_lib_file():
@@ -43,7 +61,7 @@ class Application(tk.Tk):
 
         
         self.label_mass = tk.Label(self, text = "Общая масса равна: ")
-        self.label_mass.grid(row = 0, column = 0, pady = 5, stick = "w")
+        self.label_mass.grid(row = 0, column = 0, pady = 6, stick = "w")
 
         tk.Label(self, text = "Путь к библиотеке стилей: ").grid(row = 3, column = 0)
         self.label_mass_result = tk.Label(self, text = "")
@@ -68,10 +86,12 @@ class Application(tk.Tk):
 
         self.btn_get_mass = ttk.Button(self, text = "Рассчитать массу")
         self.btn_get_mass.grid(row = 4, column = 0, stick = "w", padx = 5, pady = 10)
+
+
         self.cbtn_need_to_delete = tk.Checkbutton(self, text = "Удалять лишние строки",
                             variable = self.need_to_delete_value,
                             offvalue = 0, 
-                            onvalue = 1)
+                            onvalue = 1, state = "disable")
         self.cbtn_need_to_delete.grid(row = 4, column = 1)
 
 
