@@ -7,6 +7,7 @@ import tkinterWind as tw
 from tkinter import messagebox
 import os
 
+
 class Main_logic():
 
     def __init__(self):
@@ -15,7 +16,11 @@ class Main_logic():
         self.change_status_in_app() # Отображаем статус компаса в приложении
         self.app.btn_get_mass.configure(command = self.get_mass)
 
-    
+ 
+    def close_Kompas_process(self, program = "KOMPAS.exe"): # Принудительно убиваем процесс после закрытия
+        os.system("TASKKILL /F /IM " + program) 
+
+
     def get_Kompas(self):
         #  Подключим константы API Компас
         self.const = gencache.EnsureModule("{75C9F5D0-B5B8-4526-8681-9903C567D2ED}", 0, 1, 0).constants
@@ -35,13 +40,9 @@ class Main_logic():
         if self.iDocument:
             return True # Компас запущен
         else:
-            close_Kompas_process()
+            self.close_Kompas_process()
             return False # Компас не запущен
     
-
-    def close_Kompas_process(self, program = "KOMPAS.exe"): # Принудительно убиваем процесс после закрытия
-        os.system("TASKKILL /F /IM " + program) 
-
 
     def change_status_in_app(self):
         if self.status_open_document:
@@ -360,3 +361,4 @@ class Main_logic():
 
 if __name__ == '__main__':
     application_logic = Main_logic()
+    application_logic.app.mainloop()
