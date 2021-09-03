@@ -4,30 +4,42 @@ import tkinter as tk
 from tkinter import ttk
 import os
 from tkinter import filedialog
+from configparser import ConfigParser
 
 
 class Application(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
+        self.config = ConfigParser()
+        self.create_config_file()
         self.set_ui()
         self.set_widgets()
 
 
     def set_ui(self):
-        self.title("Расчет массы v.1.0")
-        # self.geometry(f"{root_width}x{root_height}+1200+200")
+        self.title("Расчет массы v.1.1")
         self.resizable(False, False) # Возможность изменения размера по ширине и по высоте
- 
+
+
+    def create_config_file(self):
+        if not os.path.exists('config.ini'):
+            self.config['DEFAULT'] = {'path':'C:\\LYT\\GRAPHICIL.LYT', 'rows_to_del':'1111, 2222'}
+            with open('config.ini', 'w') as configfile:
+                self.config.write(configfile)
+
 
     def save_configuration(self):
-        with open("config.ini", mode = "w") as config:
-            config.write(self.entry_library_path.get())
+        self.config.read('config.ini')
+        self.config.set('DEFAULT', 'path', self.entry_library_path.get())
+        with open("config.ini", "w") as configfile:
+            self.config.write(configfile)
        
 
     def load_configuration(self):
-        with open("config.ini", mode = "r") as config:
-            return config.read()
+        self.config.read('config.ini')
+        path = self.config.get('DEFAULT', 'path')
+        return path
 
 
     def set_widgets(self):

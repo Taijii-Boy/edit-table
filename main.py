@@ -10,6 +10,7 @@ import os
 
 class Main_logic():
 
+
     def __init__(self):
         self.app = tw.Application() # Подключаем UI
         self.status_open_document = self.get_Kompas() # Пробуем подключиться к компасу
@@ -113,6 +114,7 @@ class Main_logic():
             sp_date = (sp_obozn, sp_naim, sp_col, sp_mass)
             return sp_date
 
+        
         # Функция подсчета массы 
         def get_mass_cdw(sp_date):
             mass = 0.000
@@ -152,6 +154,7 @@ class Main_logic():
         objects_to_del = []
         self.app.label_mass.configure(text = "Общая масса равна: ") # Возвращаем исходное состояние
 
+        
         # Подсчет массы спецификации
         def get_mass(sp_naim, sp_mass, sp_col):
             nonlocal mass
@@ -246,6 +249,7 @@ class Main_logic():
     def get_mass_from_table(self):
         total_mass = 0.000
 
+        
         # Функция считывает таблицу построчно, возвращает списки строк в rows_in_table
         def get_rows_from_table():
             rows_in_table = []
