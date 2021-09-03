@@ -148,10 +148,12 @@ class Main_logic():
         mass = 0.000
         spc_is_revision = False
         mass_increase = True
+        objects_in_spc = []
+        objects_to_del = []
         self.app.label_mass.configure(text = "Общая масса равна: ") # Возвращаем исходное состояние
 
         # Подсчет массы спецификации
-        def get_mass():
+        def get_mass(sp_naim, sp_mass, sp_col):
             nonlocal mass
             if sp_naim == "Сборочный чертеж":
                 pass
@@ -185,23 +187,10 @@ class Main_logic():
                 self.app.label_mass_result.configure(text = f"{mass} кг", font = ("Arial", 10, "bold")) # Выводим в приложение
                 pyperclip.copy(mass) # Копируем в буфер обмена
 
-        try: 
-            iSpecificationDocument = self.KAPI7.ISpecificationDocument(self.iDocument) #интерфейс документа-спецификации API7
-            iDocumentSpc = self.iKompasObject.SpcActiveDocument() #указатель на интерфейс документа-спецификации API5
-            iSpecification = iDocumentSpc.GetSpecification() #указатель на спецификацию
-
-
-            path = self.app.entry_library_path.get() # Путь к библиотеке стилей
-            iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
-            iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
-            obj = iIter.ksMoveIterator("F") # чтение первой строки
-            obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
-
-            # Цикл для чтения строки
-
-            # Формат, зона, позиция, обозначение, наименование, количество, масса, материал, примечание
-            for i in range(500): #Какя строка?
-                obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
+        
+        def get_spc_spw_date(objects_in_spc):
+            nonlocal spc_is_revision
+            for obj in objects_in_spc:
                 sp_obozn = iSpecification.ksGetSpcObjectColumnText(obj, 4,  1, 0)
                 sp_naim = iSpecification.ksGetSpcObjectColumnText(obj, 5,  1, 0)
                 sp_col = iSpecification.ksGetSpcObjectColumnText(obj, 6,  1, 0)
@@ -213,16 +202,45 @@ class Main_logic():
                     spc_is_revision = True
                 if sp_naim == 'Снятые составные части':
                     mass_increase = False
-                    spc_is_revision = True
-                get_mass()
-                
-            get_result(mass, spc_is_revision)
-        except:
-            messagebox.showwarning("Внимание!", "Спецификация не найдена!")
+                    spc_is_revision = True    
+                get_mass(sp_naim, sp_mass, sp_col)    
+            get_result(mass, spc_is_revision)        
 
+      
+        try:
+            iSpecificationDocument = self.KAPI7.ISpecificationDocument(self.iDocument) #интерфейс документа-спецификации API7
+            iDocumentSpc = self.iKompasObject.SpcActiveDocument() #указатель на интерфейс документа-спецификации API5
+            iSpecification = iDocumentSpc.GetSpecification() #указатель на спецификацию
+            count_rows = iDocumentSpc.ksGetSpcDocumentPagesCount()*22 #Узнаем количество листов спец-ции и умножаем на 22 строки в листе
+            path = self.app.entry_library_path.get() # Путь к библиотеке стилей
+            iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
+            iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
+            obj = iIter.ksMoveIterator("F") # чтение первой строки
+            obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
+
+            # Цикл для чтения строки
+            for i in range(count_rows):
+                obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
+                if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
+                    sp_col = iSpecification.ksGetSpcObjectColumnText(obj, 6,  1, 0)
+                    if  sp_col in ("1111", "2222"):
+                        objects_to_del.append(obj) # Список объектов, которые будем удалять
+                        continue
+                    objects_in_spc.append(obj) # Список объектов, массу которых будем считать
+                else: 
+                    objects_in_spc.append(obj)
+
+            get_spc_spw_date(objects_in_spc)
+
+            if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
+                for obj in objects_to_del: 
+                    iDocumentSpc.ksDeleteObj(obj)
+
+        except: 
+            messagebox.showwarning("Внимание", "Спецификация не найдена")
 
     #############################################
-    #                TABLE - Служебка           #
+    #                TABLE - Таблица           #
     #############################################
 
     def get_mass_from_table(self):
@@ -356,7 +374,7 @@ class Main_logic():
                 mass = round(get_table_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
                 get_result_from_table(mass) # Выводим результат
         except:
-            messagebox.showwarning("Внимание", "Служебная записка не найдена")           
+            messagebox.showwarning("Внимание", "Служебная записка не найдена")
 
 
 if __name__ == '__main__':

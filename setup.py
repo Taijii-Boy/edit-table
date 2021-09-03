@@ -9,9 +9,9 @@ executables = [Executable('main.py',
               ]
 
 excludes = ['logging', 'unittest', 'email', 'html', 'http', 'urllib', 'xml',
-            'unicodedata', 'bz2', 'select']
+            'unicodedata', 'bz2', 'select', 'PyQt5']
 
-include_files = ['config.ini', 'tkinterWind.py']
+include_files = ['config.ini']
 
 zip_include_packages = ['collections', 'encodings', 'importlib']
 

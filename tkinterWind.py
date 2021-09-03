@@ -44,7 +44,6 @@ class Application(tk.Tk):
             elif self.combo_document_type.get() == "*.spw":
                 self.entry_library_path.configure(state = "normal")
                 btn_get_library_path.configure(state = "normal")
-                self.cbtn_need_to_delete.configure(state = "disable")
             elif self.combo_document_type.get() == "Служебка":
                 self.entry_library_path.configure(state = "disable")
                 btn_get_library_path.configure(state = "disable")
@@ -91,7 +90,7 @@ class Application(tk.Tk):
         self.cbtn_need_to_delete = tk.Checkbutton(self, text = "Удалять лишние строки",
                             variable = self.need_to_delete_value,
                             offvalue = 0, 
-                            onvalue = 1, state = "disable")
+                            onvalue = 1)
         self.cbtn_need_to_delete.grid(row = 4, column = 1)
 
 
