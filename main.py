@@ -207,40 +207,46 @@ class Main_logic():
                     mass_increase = False
                     spc_is_revision = True    
                 get_mass(sp_naim, sp_mass, sp_col)    
-            get_result(mass, spc_is_revision)        
+            get_result(mass, spc_is_revision)
+
+
+        def del_spc_spw_objects(objects_to_del):
+            for obj in objects_to_del:
+                iDocumentSpc.ksDeleteObj(obj)
 
       
         try:
             iSpecificationDocument = self.KAPI7.ISpecificationDocument(self.iDocument) #интерфейс документа-спецификации API7
             iDocumentSpc = self.iKompasObject.SpcActiveDocument() #указатель на интерфейс документа-спецификации API5
             iSpecification = iDocumentSpc.GetSpecification() #указатель на спецификацию
-            count_rows = iDocumentSpc.ksGetSpcDocumentPagesCount()*22 #Узнаем количество листов спец-ции и умножаем на 22 строки в листе
-            path = self.app.entry_library_path.get() # Путь к библиотеке стилей
-            iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
-            iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
-            obj = iIter.ksMoveIterator("F") # чтение первой строки
-            obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
-
-            # Цикл для чтения строки
-            for i in range(count_rows):
-                obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
-                if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
-                    sp_col = iSpecification.ksGetSpcObjectColumnText(obj, 6,  1, 0)
-                    if  sp_col in ("1111", "2222"):
-                        objects_to_del.append(obj) # Список объектов, которые будем удалять
-                        continue
-                    objects_in_spc.append(obj) # Список объектов, массу которых будем считать
-                else: 
-                    objects_in_spc.append(obj)
-
-            get_spc_spw_date(objects_in_spc)
-
-            if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
-                for obj in objects_to_del: 
-                    iDocumentSpc.ksDeleteObj(obj)
-
         except: 
             messagebox.showwarning("Внимание", "Спецификация не найдена")
+            return
+            
+        count_rows = iDocumentSpc.ksGetSpcDocumentPagesCount()*22 #Узнаем количество листов спец-ции и умножаем на 22 строки в листе
+        path = self.app.entry_library_path.get() # Путь к библиотеке стилей
+        iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
+        iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
+        obj = iIter.ksMoveIterator("F") # чтение первой строки
+        obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
+
+        # Цикл для чтения строки
+        for i in range(count_rows):
+            obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
+            if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
+                sp_col = iSpecification.ksGetSpcObjectColumnText(obj, 6,  1, 0)
+                if  sp_col in ("1111", "2222"):
+                    objects_to_del.append(obj) # Список объектов, которые будем удалять
+                    continue
+                objects_in_spc.append(obj) # Список объектов, массу которых будем считать
+            else: 
+                objects_in_spc.append(obj)
+
+        get_spc_spw_date(objects_in_spc)
+
+        if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
+            del_spc_spw_objects(objects_to_del)
+
 
     #############################################
     #                TABLE - Таблица           #
@@ -344,41 +350,42 @@ class Main_logic():
             iKompasDocument2D = self.KAPI7.IKompasDocument2D(self.iDocument)
             iDocument2D = self.iKompasObject.ActiveDocument2D()
             iKompasDocument2D1 = self.KAPI7.IKompasDocument2D1(iKompasDocument2D)
-
-            # Получаем выделенную таблицу
-            
-            iSelectionManager = iKompasDocument2D1.SelectionManager 
-            selected_object = iSelectionManager.SelectedObjects
-
-            if type(selected_object) != tuple and (selected_object == None or selected_object.Type != 13062): # Если ничего не выделили или выделена не таблица
-                messagebox.showwarning("Внимание", "Вы должны выделить одну или несколько таблиц")
-            elif type(selected_object) == tuple:
-                for sel_object in selected_object:
-                    if sel_object.Type == 13062: # Если в выделенных элементах присутствует Таблица
-                        iTable = self.KAPI7.ITable(sel_object)
-                        rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
-                        if self.app.need_to_delete_value.get() == 1: # Если стоит галочка Удалять лишние строки
-                            clear_table() # Удаляем лишние строки
-                            rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
-                            rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
-                        mass = round(get_table_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
-                        total_mass = total_mass + mass
-                    else:
-                        continue # Пропускаем все выделенные объекты кроме таблиц
-                total_mass = round(total_mass, 3) # Округляем до 3 знаков после запятой
-                get_result_from_table(total_mass)  # Выводим результат
-            else:
-                # Если выделена одна таблица
-                iTable = self.KAPI7.ITable(selected_object)
-                rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
-                if self.app.need_to_delete_value.get() == 1: # Если стоит галочка Удалять лишние строки
-                    clear_table() # Удаляем лишние строки
-                    rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
-                    rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
-                mass = round(get_table_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
-                get_result_from_table(mass) # Выводим результат
         except:
             messagebox.showwarning("Внимание", "Служебная записка не найдена")
+            return
+
+        # Получаем выделенную таблицу
+            
+        iSelectionManager = iKompasDocument2D1.SelectionManager 
+        selected_object = iSelectionManager.SelectedObjects
+
+        if type(selected_object) != tuple and (selected_object == None or selected_object.Type != 13062): # Если ничего не выделили или выделена не таблица
+            messagebox.showwarning("Внимание", "Вы должны выделить одну или несколько таблиц")
+        elif type(selected_object) == tuple:
+            for sel_object in selected_object:
+                if sel_object.Type == 13062: # Если в выделенных элементах присутствует Таблица
+                    iTable = self.KAPI7.ITable(sel_object)
+                    rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
+                    if self.app.need_to_delete_value.get() == 1: # Если стоит галочка Удалять лишние строки
+                        clear_table() # Удаляем лишние строки
+                        rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
+                        rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
+                    mass = round(get_table_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
+                    total_mass = total_mass + mass
+                else:
+                    continue # Пропускаем все выделенные объекты кроме таблиц
+            total_mass = round(total_mass, 3) # Округляем до 3 знаков после запятой
+            get_result_from_table(total_mass)  # Выводим результат
+        else:
+            # Если выделена одна таблица
+            iTable = self.KAPI7.ITable(selected_object)
+            rows_in_table = get_rows_from_table() # Получаем списком данные из таблицы
+            if self.app.need_to_delete_value.get() == 1: # Если стоит галочка Удалять лишние строки
+                clear_table() # Удаляем лишние строки
+                rows_in_table = get_rows_from_table() # Повторно запрашиваем данные очищенной таблицы
+                rows_in_table = del_empty_rows(rows_in_table) # Удаляем лишние строки
+            mass = round(get_table_mass(rows_in_table), 3) # Считаем массу и округляем до 3 знаков после запятой
+            get_result_from_table(mass) # Выводим результат
 
 
 if __name__ == '__main__':
