@@ -5,13 +5,13 @@ from cx_Freeze import setup, Executable
 executables = [Executable('main.py',
                           targetName='KompasMass.exe',
                           base='Win32GUI',
-                          icon='icon.ico')
+                          icon='images/icon.ico')
               ]
 
-excludes = ['logging', 'unittest', 'email', 'html', 'http', 'urllib', 'xml',
+excludes = ['unittest', 'email', 'html', 'http', 'xml',
             'unicodedata', 'bz2', 'select', 'PyQt5']
 
-include_files = ['config.ini']
+include_files = ['config.ini', 'images']
 
 zip_include_packages = ['collections', 'encodings', 'importlib']
 

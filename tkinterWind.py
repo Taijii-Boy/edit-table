@@ -5,6 +5,9 @@ from tkinter import ttk
 import os
 from tkinter import filedialog
 from configparser import ConfigParser
+from PIL import Image as PilImage
+from PIL import ImageTk
+import configuration_window as cw
 
 
 class Application(tk.Tk):
@@ -17,8 +20,12 @@ class Application(tk.Tk):
         self.set_widgets()
 
 
+    # def create_configuration_window(self):
+    #     cw.configuration_window(self)
+
+
     def set_ui(self):
-        self.title("Расчет массы v.1.1")
+        self.title("Расчет массы v.1.2")
         self.resizable(False, False) # Возможность изменения размера по ширине и по высоте
 
 
@@ -39,13 +46,18 @@ class Application(tk.Tk):
     def load_configuration(self):
         self.config.read('config.ini')
         path = self.config.get('DEFAULT', 'path')
-        return path
+        rows_to_del = (self.config.get('DEFAULT', 'rows_to_del')).split(", ")
+        return path, rows_to_del
+
+
+    def change_configuration(self):
+        cw.configuration_window(self)
 
 
     def set_widgets(self):
         document_types = ("*.cdw", "*.spw", "Служебка")
         self.need_to_delete_value = tk.IntVar()
-        lib_path = self.load_configuration()
+        self.lib_path, self.rows_to_del = self.load_configuration()
 
 
         def change_entry_state(event):
@@ -70,7 +82,7 @@ class Application(tk.Tk):
                     self.entry_library_path.delete(0, tk.END)
                     self.entry_library_path.insert(0, file_path)
 
-        
+
         self.label_mass = tk.Label(self, text = "Общая масса равна: ")
         self.label_mass.grid(row = 0, column = 0, pady = 6, stick = "w")
 
@@ -90,10 +102,17 @@ class Application(tk.Tk):
 
         self.entry_library_path = tk.Entry(self)
         self.entry_library_path.grid(row = 3, column = 1, stick = "we")
-        self.entry_library_path.insert(0, lib_path)
+        self.entry_library_path.insert(0, self.lib_path)
 
         btn_get_library_path = ttk.Button(self, text = "...", width = 3, command = open_lib_file)
         btn_get_library_path.grid(row = 3, column = 2)
+
+        configuration_icon = PilImage.open(r"images/settings.png")
+        configuration_icon = configuration_icon.resize((18, 18), PilImage.ANTIALIAS)
+        self.conf_icon = ImageTk.PhotoImage(configuration_icon)
+        btn_change_configuration = ttk.Button(self, width = 3, image = self.conf_icon,
+                                             command = self.change_configuration)
+        btn_change_configuration.grid(row = 4, column = 2)
 
         self.btn_get_mass = ttk.Button(self, text = "Рассчитать массу")
         self.btn_get_mass.grid(row = 4, column = 0, stick = "w", padx = 5, pady = 10)

@@ -17,7 +17,7 @@ class Main_logic():
         self.change_status_in_app() # Отображаем статус компаса в приложении
         self.app.btn_get_mass.configure(command = self.get_mass)
 
- 
+
     def close_Kompas_process(self, program = "KOMPAS.exe"): # Принудительно убиваем процесс после закрытия
         os.system("TASKKILL /F /IM " + program) 
 
@@ -150,8 +150,6 @@ class Main_logic():
         mass = 0.000
         spc_is_revision = False
         mass_increase = True
-        objects_in_spc = []
-        objects_to_del = []
         self.app.label_mass.configure(text = "Общая масса равна: ") # Возвращаем исходное состояние
 
         
@@ -210,42 +208,76 @@ class Main_logic():
             get_result(mass, spc_is_revision)
 
 
-        def del_spc_spw_objects(objects_to_del):
+        def del_spc_spw_objects(objects_in_spc, iSpecification, iDocumentSpc):
+            objects_to_del = []
+            # indexes = []
+            # # indexes_list = []
+            # object_list = ["Сборочные единицы", "Детали", "Стандартные изделия", "Болты",
+            #                 "Винты", "Втулки"]
+            spc_spw_list = []
+
+            for obj in enumerate(objects_in_spc):
+                sp_col = iSpecification.ksGetSpcObjectColumnText(obj[1], 6,  1, 0)
+                sp_naim = iSpecification.ksGetSpcObjectColumnText(obj[1], 5,  1, 0)
+                # if sp_naim in object_list:
+                #     indexes.append(obj[0])
+                spc_spw_list.append([obj[0], obj[1], sp_naim, sp_col])
+
+            objects_to_del = [x for x in spc_spw_list if x[3] in self.app.load_configuration()[1]] # [1111, 2222]
             for obj in objects_to_del:
-                iDocumentSpc.ksDeleteObj(obj)
+                iDocumentSpc.ksDeleteObj(obj[1])
 
-      
-        try:
-            iSpecificationDocument = self.KAPI7.ISpecificationDocument(self.iDocument) #интерфейс документа-спецификации API7
-            iDocumentSpc = self.iKompasObject.SpcActiveDocument() #указатель на интерфейс документа-спецификации API5
-            iSpecification = iDocumentSpc.GetSpecification() #указатель на спецификацию
-        except: 
-            messagebox.showwarning("Внимание", "Спецификация не найдена")
-            return
+            # TODO   
+            # for i in range(len(indexes)):
+            #     if indexes[i] != indexes[len(indexes)-1]:
+            #         indexes_list.append((indexes[i], indexes[i+1]))
+            # print(indexes_list)
+
+            # for i in range(len(indexes_list)):
+            #     for j in range(indexes_list[i][0], indexes_list[i][1]+1):
+            #         print(j)
+            #         if spc_list[j][0] == j:
+            #             print(spc_list[j])
+            #     print("--------")
+
+
+        def get_spc_interface():
+            try:
+                iSpecificationDocument = self.KAPI7.ISpecificationDocument(self.iDocument) #интерфейс документа-спецификации API7
+                iDocumentSpc = self.iKompasObject.SpcActiveDocument() #указатель на интерфейс документа-спецификации API5
+                iSpecification = iDocumentSpc.GetSpecification() #указатель на спецификацию
+                count_rows = iDocumentSpc.ksGetSpcDocumentPagesCount()*22 #Узнаем количество листов спец-ции и умножаем на 22 строки в листе
+                return(count_rows, iSpecification, iDocumentSpc)
+            except: 
+                messagebox.showwarning("Внимание", "Спецификация не найдена")
+                return
+
+
+        def read_spc_spw_rows(count_rows, iSpecification, iDocumentSpc):
+            objects_in_spc = []
             
-        count_rows = iDocumentSpc.ksGetSpcDocumentPagesCount()*22 #Узнаем количество листов спец-ции и умножаем на 22 строки в листе
-        path = self.app.entry_library_path.get() # Путь к библиотеке стилей
-        iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
-        iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
-        obj = iIter.ksMoveIterator("F") # чтение первой строки
-        obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
+            path = self.app.entry_library_path.get() # Путь к библиотеке стилей
+            iIter = self.iKompasObject.GetIterator() # Получить интерфейс итератора
+            iIter.ksCreateSpcIterator(path, 10, 3) #Создать итератор по объектам спецификации
+            obj = iIter.ksMoveIterator("F") # чтение первой строки
+            obj = iIter.ksMoveIterator("N") #В нашей спецификации пропускаем первые 2 строки (там че-та какая-та надпись лишняя)
 
-        # Цикл для чтения строки
-        for i in range(count_rows):
-            obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
-            if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
-                sp_col = iSpecification.ksGetSpcObjectColumnText(obj, 6,  1, 0)
-                if  sp_col in ("1111", "2222"):
-                    objects_to_del.append(obj) # Список объектов, которые будем удалять
-                    continue
-                objects_in_spc.append(obj) # Список объектов, массу которых будем считать
-            else: 
+            # Цикл для чтения строки
+            for i in range(count_rows):
+                obj = iIter.ksMoveIterator("N") # N - переход к следующему объекту
                 objects_in_spc.append(obj)
+            return objects_in_spc
+
+
+        # MAIN
+        count_rows, iSpecification, iDocumentSpc = get_spc_interface()
+        objects_in_spc = read_spc_spw_rows(count_rows, iSpecification, iDocumentSpc)
+        
+        if self.app.need_to_delete_value.get() == 1:
+            del_spc_spw_objects(objects_in_spc, iSpecification, iDocumentSpc)
 
         get_spc_spw_date(objects_in_spc)
 
-        if self.app.need_to_delete_value.get() == 1: # Если стоит галочка удалять строки
-            del_spc_spw_objects(objects_to_del)
 
 
     #############################################
@@ -333,7 +365,7 @@ class Main_logic():
                         iText = iTextObject._oleobj_.QueryInterface(self.KAPI7.IText.CLSID, pythoncom.IID_IDispatch)
                         iText = self.KAPI7.IText(iText)
                         iText = iText.Str
-                        if iText in ("111", "222", "1111", "2222"):
+                        if iText in self.app.load_configuration()[1]: # 1111, 2222
                             rows_to_delete.append(iTableCell.Row) # Создаем список строк, которые необходимо удалить
             first_iter = True
             j = 1
@@ -390,4 +422,5 @@ class Main_logic():
 
 if __name__ == '__main__':
     application_logic = Main_logic()
+    application_logic.app.attributes("-topmost", True) # Запускать поверх всех окон
     application_logic.app.mainloop()
